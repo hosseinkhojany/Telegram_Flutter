@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 
 class Constants{
 
-
+// https://pokeapi.co/api/v2/pokemon
+  static String BASE_API_URL = "https://pokeapi.co/api/v2";
   static Size designSize = const Size(375, 812);
   static Map<Locale, String> languagesMap = {
     const Locale('en', 'US'): "English",
     const Locale('fa', 'IR') : "فارسی",
   };
+
 }
 
 enum MESSAGE_TYPE {
@@ -46,4 +48,15 @@ extension GlobalBuildContextExt on BuildContext{
         Theme.of(this).platform == TargetPlatform.iOS;
   }
 
+}
+
+// constant for page limit & timeout
+mixin AppLimit {
+  static const int DIO_TIME_OUT = 30000;
+}
+enum RequestState{
+  LOADING,
+  IDLE,
+  ERROR,
+  SUCCESS
 }

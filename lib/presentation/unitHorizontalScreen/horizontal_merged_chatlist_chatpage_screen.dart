@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:telegram_flutter/common/utils/ext.dart';
 import 'package:telegram_flutter/presentation/chatListPage/chat_list_page.dart';
 import 'package:telegram_flutter/presentation/chatPage/chat_page.dart';
+import 'package:telegram_flutter/presentation/take_picture.dart';
 
 import '../../common/gen/assets.gen.dart';
 import '../../common/gen/colors.gen.dart';
@@ -38,7 +39,8 @@ class MergedChatListChatPageScreenState
         childDecoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
-        drawer: const DrawerMenuItems(),
+        drawer: DrawerMenuItems(
+            advancedDrawerController: _advancedDrawerController),
         child: responsiveChooser(),
       ),
     );
@@ -74,7 +76,10 @@ class MergedChatListChatPageScreenState
 }
 
 class DrawerMenuItems extends StatefulWidget {
-  const DrawerMenuItems({Key? key}) : super(key: key);
+  final advancedDrawerController;
+
+  const DrawerMenuItems({Key? key, this.advancedDrawerController})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -92,13 +97,29 @@ class DrawerMenuItemsState extends State<DrawerMenuItems>
     parent: _controller,
     curve: Curves.slowMiddle,
   );
+  late CameraController _cameraController;
+
+  late Future<void> _initializeControllerFuture;
 
   bool showProfileEdit = false;
   bool showProfileEditCurrentHover = false;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   _cameraController = CameraController(
+  //     // Get a specific camera from the list of available cameras.
+  //     widget.camera,
+  //     ResolutionPreset.high,
+  //   );
+  //   _initializeControllerFuture = _cameraController.initialize();
+  // }
+
   @override
   void dispose() {
     _controller.dispose();
+    _cameraController.dispose();
     super.dispose();
   }
 
@@ -143,7 +164,8 @@ class DrawerMenuItemsState extends State<DrawerMenuItems>
                               });
                             }
                           } else {
-                            Future.delayed(Duration(milliseconds: 300), () {
+                            Future.delayed(const Duration(milliseconds: 300),
+                                () {
                               if (showProfileEdit &&
                                   !showProfileEditCurrentHover) {
                                 setState(() {
@@ -155,77 +177,89 @@ class DrawerMenuItemsState extends State<DrawerMenuItems>
                             });
                           }
                         },
-                        child: Image.asset(
-                          'assets/images/b.png',
-                        ),
+                        child: Image.asset('assets/images/b.png',
+                        fit: BoxFit.cover,),
                       ),
                     ),
                   ),
                   if (showProfileEdit)
-                    ScaleTransition(
-                      alignment: Alignment.center,
-                      scale: _animation,
-                      child: InkWell(
-                        onTap: () {},
-                        onHover: (value) {
-                          showProfileEditCurrentHover = value;
-                          if (value) {
-                            showProfileEdit = true;
-                          } else {
-                            Future.delayed(Duration(milliseconds: 300), () {
-                              if (!showProfileEditCurrentHover) {
-                                setState(() {
-                                  showProfileEdit = false;
-                                  _controller.reset();
-                                  _controller.animateTo(0);
-                                });
-                              }
-                            });
-                          }
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(
-                            top: 14.0,
-                            left: 14.0,
-                          ),
-                          child: PopupMenuButton(
-                            tooltip: "Edit profile",
-                            child: Icon(Icons.edit),
-                            itemBuilder: (context) {
-                              return [
-                                PopupMenuItem<String>(
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: ScaleTransition(
+                        alignment: Alignment.center,
+                        scale: _animation,
+                        child: InkWell(
+                          onTap: () => debugPrint('onTap'),
+                          onHover: (value) {
+                            showProfileEditCurrentHover = value;
+                            if (value) {
+                              showProfileEdit = true;
+                            } else {
+                              Future.delayed(const Duration(milliseconds: 300),
+                                  () {
+                                if (!showProfileEditCurrentHover) {
+                                  setState(() {
+                                    showProfileEdit = false;
+                                    _controller.reset();
+                                    _controller.animateTo(0);
+                                  });
+                                }
+                              });
+                            }
+                          },
+                          child: Container(
+                            margin:
+                                const EdgeInsets.only(top: 14.0, left: 14.0),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                            ),
+                            child: PopupMenuButton(
+                              tooltip: "Edit Profile",
+                              icon: const Icon(Icons.edit),
+                              iconSize: 18.0,
+                              onSelected: (value) {
+                                debugPrint('$value');
+                                _handleMenuItemSelect(value);
+                              },
+                              onCanceled: () => debugPrint('onCanceled'),
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 1,
+                                  child: Text('Camera'),
+                                  // Row(
+                                  //     mainAxisAlignment:
+                                  //     MainAxisAlignment.spaceBetween,
+                                  //     children: const [
+                                  //       Text('Camera'),
+                                  //       Icon(Icons.camera_alt_rounded,
+                                  //           size: 24)
+                                  //     ]),
+                                ),
+                                PopupMenuItem(
+                                    value: 2,
                                     child: Row(
-                                        children: [
-                                          Text('Camera'),
-                                          Icon(Icons.camera_alt_rounded, size: 24)
-                                        ],
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween),
-                                    value: '1'),
-                                PopupMenuItem<String>(
-                                    child: Row(
-                                        children: [
+                                            MainAxisAlignment.spaceBetween,
+                                        children: const [
                                           Text('Files'),
-                                          Icon(Icons.browse_gallery_rounded, size: 24)
-                                        ],
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween),
-                                    value: '2'),
-                                PopupMenuItem<String>(
+                                          Icon(Icons.photo_library_rounded,
+                                              size: 24)
+                                        ])),
+                                PopupMenuItem(
+                                    value: 3,
                                     child: Row(
-                                        children: [
-                                          Text('Pokemons'),
-                                          Assets.images.pokemonIcons.image(height: 24, width: 24)
-                                        ],
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween),
-                                    value: '3'),
-                              ];
-                            },
-                          ),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text('Pokemons'),
+                                          Assets.images.pokemonIcons
+                                              .image(height: 24, width: 24)
+                                        ])),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -236,21 +270,65 @@ class DrawerMenuItemsState extends State<DrawerMenuItems>
 
             // MENU ITEMS --------------------
 
-            ListTile(
-              leading: const Icon(Icons.account_circle_rounded),
+            const ListTile(
+              leading: Icon(Icons.account_circle_rounded),
               title: Text("Accounts"),
             ),
-            ListTile(
-              leading: const Icon(Icons.home),
+            const ListTile(
+              leading: Icon(Icons.home),
               title: Text("Contacts"),
             ),
-            ListTile(
-              leading: const Icon(Icons.home),
+            const ListTile(
+              leading: Icon(Icons.home),
               title: Text("Settings"),
+            ),
+            PopupMenuButton(
+              tooltip: "Edit Profile",
+              icon: const Icon(Icons.edit),
+              iconSize: 18.0,
+              onSelected: (value) {
+                debugPrint('$value');
+                _handleMenuItemSelect(value);
+              },
+              onCanceled: () => debugPrint('onCanceled'),
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 1,
+                  child: Text('Camera'),
+                  // Row(
+                  //     mainAxisAlignment:
+                  //     MainAxisAlignment.spaceBetween,
+                  //     children: const [
+                  //       Text('Camera'),
+                  //       Icon(Icons.camera_alt_rounded,
+                  //           size: 24)
+                  //     ]),
+                ),
+                PopupMenuItem(
+                    value: 2,
+                    child: Row(
+                        mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
+                        children: const [
+                          Text('Files'),
+                          Icon(Icons.photo_library_rounded,
+                              size: 24)
+                        ])),
+                PopupMenuItem(
+                    value: 3,
+                    child: Row(
+                        mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Pokemons'),
+                          Assets.images.pokemonIcons
+                              .image(height: 24, width: 24)
+                        ])),
+              ],
             ),
             const Spacer(),
             DefaultTextStyle(
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.white54,
               ),
@@ -258,12 +336,46 @@ class DrawerMenuItemsState extends State<DrawerMenuItems>
                 margin: const EdgeInsets.symmetric(
                   vertical: 16.0,
                 ),
-                child: Text('Terms of Service | Privacy Policy'),
+                child: const Text('Terms of Service | Privacy Policy'),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _handleMenuItemSelect(value) async {
+    switch (value) {
+      case '1':
+        final cameras = await availableCameras();
+
+        final firstCamera = cameras.first;
+        debugPrint('camera');
+        _openCamera(firstCamera);
+
+        break;
+      case '2':
+        //files
+
+        break;
+      case '3':
+        //pokemon
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //       builder: (context) => PokemonPage()
+        //   ),
+        // );
+        break;
+    }
+  }
+
+  void _openCamera(camera) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TakePictureScreen(camera: camera)));
+    widget.advancedDrawerController.hideDrawer();
   }
 }

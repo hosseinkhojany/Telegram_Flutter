@@ -46,9 +46,7 @@ class _IntroScreenState extends State<IntroScreen> {
           child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const SizedBox(
-            height: 30,
-          ),
+          const SizedBox(height: 30),
           Expanded(
             child: PageView.builder(
               controller: pageController,
@@ -76,8 +74,7 @@ class _IntroScreenState extends State<IntroScreen> {
             child: TextButton(
                 onPressed: () {
                   SharedStore.setFirstRun(true);
-                  Navigator.pushReplacementNamed(
-                    context, routeChooser());
+                  Navigator.pushReplacementNamed(context, routeChooser());
                 },
                 child: const Text('Skip')),
           ),
@@ -86,10 +83,11 @@ class _IntroScreenState extends State<IntroScreen> {
       )),
     );
   }
-  String routeChooser(){
-    if(SharedStore.getUserName().isNotEmpty){
+
+  String routeChooser() {
+    if (SharedStore.getUserName().isNotEmpty) {
       return chatPageRoute;
-    }else{
+    } else {
       return loginRoute;
     }
   }

@@ -18,14 +18,18 @@ class PageViewModel extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+              fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         Image.asset(
           imagePath,
           width: 400,
           height: 400,
         ),
-        Text(subtitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400),),
+        Text(
+          subtitle,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+        ),
       ],
     );
   }

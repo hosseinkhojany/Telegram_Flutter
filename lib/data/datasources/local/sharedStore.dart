@@ -1,8 +1,10 @@
 import 'dart:async' show Future;
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const userName = "userName";
 const firstRun = "firstRun";
+const userToken = "USER_TOKEN";
 
 class SharedStore {
   static SharedPreferences? _prefsInstance;
@@ -15,6 +17,10 @@ class SharedStore {
       _prefsInstance = await SharedPreferences.getInstance();
       return _prefsInstance!;
     }
+  }
+
+  static Box _getBox(){
+    return Hive.box(userToken);
   }
 
   static String getString(String key, [String defValue = ""]) {
@@ -48,6 +54,10 @@ class SharedStore {
   static Future<bool> setFirstRun(bool value) {
     return setBool(firstRun, value);
   }
+
+  static void setUserToken(String value) => _getBox().put(userToken, value);
+
+  static String getUserToken() => _getBox().get(userToken, defaultValue: "");
 
   static clearAll() async{
     await _prefsInstance?.clear();

@@ -8,7 +8,7 @@ class ChatPageDialogs {
       barrierDismissible: true,
       barrierLabel: '',
       barrierColor: Colors.black38,
-      transitionDuration: Duration(milliseconds: 500),
+      transitionDuration: const Duration(milliseconds: 500),
       pageBuilder: (ctx, anim1, anim2) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -19,42 +19,43 @@ class ChatPageDialogs {
         actions: [
           GestureDetector(
             child: Container(
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Text("Yes"),
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.green,
-              ),
-            ),
-            onTap: () {
-              onYesPressed?.call();
-            },
-          ),
-          GestureDetector(
-            child: Container(
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Text("No"),
-              ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 color: Colors.red,
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(10),
+                child: Text("No"),
               ),
             ),
             onTap: () {
               Navigator.of(context).pop();
             },
           ),
+          GestureDetector(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.green,
+              ),
+              child: const Padding(
+                padding: const EdgeInsets.all(10),
+                child: Text("Yes"),
+              ),
+            ),
+            onTap: () {
+              onYesPressed?.call();
+            },
+          ),
+
         ],
       ),
       transitionBuilder: (ctx, anim1, anim2, child) => BackdropFilter(
         filter:
             ImageFilter.blur(sigmaX: 4 * anim1.value, sigmaY: 4 * anim1.value),
         child: FadeTransition(
-          child: child,
           opacity: anim1,
+          child: child,
         ),
       ),
       context: context,
