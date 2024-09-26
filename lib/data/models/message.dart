@@ -1,34 +1,59 @@
 
 import 'dart:convert';
 
+
 class BaseMessageModel{}
 
 class MessageModel extends BaseMessageModel{
+  String? id;
   String? realName;
   String? userName;
   String? message;
   String? messageType;
+  String? createdAt;
+  String? updatedAt;
+  bool? edited;
+  bool? deleted;
+  String? conversationId;
   bool my = false;
 
   MessageModel({
+    String? id,
     String? realName,
     String? userName,
         String? message,
         String? messageType,
+        String? createdAt,
+        String? updatedAt,
+        String? conversationId,
+        bool? edited,
+        bool? deleted,
         bool? my,
       }){
+    this.id = id ?? "";
     this.userName = userName ?? "";
     this.message = message ?? "";
     this.messageType = messageType ?? "";
+    this.createdAt = createdAt ?? "";
+    this.updatedAt = updatedAt ?? "";
+    this.edited = edited ?? false;
+    this.deleted = deleted ?? false;
+    this.conversationId = conversationId ?? "";
     this.my = my ?? false;
   }
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
+      id: json['_id'],
       realName: json['realName'],
       userName: json['username'],
       message: json['message'],
       messageType: json['messageType'],
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
+      edited: json['edited'],
+      deleted: json['deleted'],
+      conversationId: json['conversationId'],
     );
   }
   String toJsonMessage() {

@@ -1,0 +1,74 @@
+name: Deploy Web
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  HEROKU_API_KEY: ${{ secrets.HEROKUDEPLOYER }}
+  HEROKU_EMAIL: "hosseinkhojany1380@gmail.com"
+  HEROKU_APP_NAME: "flutterchatting"
+jobs:
+  deploy-to-heroku:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Add Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Build flutter web
+        run: |
+          flutter pub get
+          flutter build web
+      - name: Change directory to build
+        run: |
+          cd build
+
+      - name: add required file for heroku
+        run: |
+          echo "<php " >> index.html
+          echo '<?php include_once("web\index.html");' >> index.php
+          echo "web: vendor/bin/heroku-php-apache2 /web" >> Procfile
+
+      - name: Commit to git
+        run: |
+          git config --global user.email "hosseinkhojany1380@gmail.com"
+          git config --global user.name "Hossein Khojany"
+          git init
+          git add .
+          git commit -m "Deploy to heroku"
+      - name: Heroku login credentials
+        run: |
+          cat > ~/.netrc <<EOF
+            machine api.heroku.com
+              login $HEROKU_EMAIL
+              password $HEROKU_API_KEY
+            machine git.heroku.com
+              login $HEROKU_EMAIL
+              password $HEROKU_API_KEY
+          EOF
+
+      - name: Add Heroku remote
+        run: heroku git:remote --app $HEROKU_APP_NAME
+
+      - name: Add heroku build pack
+        run: heroku buildpacks:set heroku/php
+
+      - name: Push to Heroku
+        run: git push heroku master
+
+      - name: Send Telegram Message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TG_TO }}
+          token: ${{ secrets.TG_TOKEN }}
+          format: "markdown"
+          message: |
+            *New Version of Messenger deployed to Heroku!*
+
+            [View the app](https://flutterchatting.herokuapp.com/)

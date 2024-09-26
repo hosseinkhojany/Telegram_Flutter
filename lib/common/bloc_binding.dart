@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:telegram_flutter/data/datasources/remote/chat_datasource.dart';
@@ -15,63 +16,28 @@ import '../domain/user/user_bloc.dart';
 
 class AppBindingsBloc extends StatelessWidget {
   final Widget child;
-  late Dio dio;
-
-  void _dio() {
-    final options = BaseOptions(
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Authorization': 'Bearer abcdxyz',
-        'Content-Type': 'application/json',
-        "Access-Control-Allow-Credentials": true, 
-        "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
-        "Access-Control-Allow-Methods": "POST, OPTIONS"
-      },
-      baseUrl: "https://commander009.herokuapp.com",
-      // baseUrl: "http://localhost:3000",
-      connectTimeout: 10000,
-      receiveTimeout: 10000,
-      sendTimeout: 10000,
-    );
-
-    var dios = Dio(options);
-    dios.interceptors.add(LoggingInterceptor());
-    dio = dios;
-  }
-
-  Socket socket = IO.io(
-      'https://commander009.herokuapp.com/',
-      // "http://localhost:3000",
-      OptionBuilder()
-          .setTimeout(30 * 1000)
-          .setTransports(['websocket'])
-          // .setExtraHeaders({'foo': 'bar'})
-          .disableAutoConnect()
-          .build());
-
-  StreamSocket streamSocket = StreamSocket();
 
   AppBindingsBloc({Key? key, required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    _dio();
-    UserRepository userRepository = UserRepository(UserDataSource(dio, socket));
-    ChatRepository chatRepository = ChatRepository(ChatDataSource(dio, socket, streamSocket));
     return MultiBlocProvider(providers: [
       BlocProvider(
+        lazy: true,
         create: (context) {
-          return SocketBloc(chatRepository);
+          return SocketBloc(Get.find());
         },
       ),
       BlocProvider(
+        lazy: true,
         create: (context) {
-          return UserBloc(userRepository, chatRepository);
+          return UserBloc(Get.find(), Get.find());
         },
       ),
       BlocProvider(
+        lazy: true,
         create: (context) {
-          return ChatBloc(chatRepository);
+          return ChatBloc(Get.find());
         },
       ),
     ], child: child);

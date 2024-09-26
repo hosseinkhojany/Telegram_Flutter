@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:telegram_flutter/common/getx_binding.dart';
 import 'package:telegram_flutter/common/router.dart';
+import 'package:telegram_flutter/data/datasources/local/app_database.dart';
 import 'package:telegram_flutter/presentation/loginPage/login_page.dart';
 import 'package:telegram_flutter/presentation/introScreen/intro_screen.dart';
 import 'package:telegram_flutter/presentation/unitHorizontalScreen/horizontal_merged_chatlist_chatpage_screen.dart';

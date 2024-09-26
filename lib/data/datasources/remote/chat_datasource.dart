@@ -7,6 +7,7 @@ import 'package:telegram_flutter/data/models/history.dart';
 import '../../config/stream_socket.dart';
 import '../../models/base_model.dart';
 import '../../models/message.dart';
+import '../local/app_database.dart';
 import '../local/sharedStore.dart';
 
 class ChatDataSource {
@@ -14,12 +15,14 @@ class ChatDataSource {
   final Socket socket;
   final StreamSocket streamSocket;
   final Dio dio;
+  final AppDatabase appDatabase;
 
-  ChatDataSource(this.dio, this.socket, this.streamSocket);
+  ChatDataSource(this.appDatabase, this.dio, this.socket, this.streamSocket);
 
   Stream<BaseMessageModel> listen() {
     socket.on('new message', (data) {
       debugPrint("new message:$data");
+      appDatabase.insertMessage(MessageModel.fromJson(data));
       streamSocket.addResponse.call(MessageModel.fromJson(data));
     });
     socket.on('user joined', (data) {

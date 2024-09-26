@@ -1,0 +1,35 @@
+CREATE TABLE messageTable (
+_id TEXT NOT NULL PRIMARY KEY UNIQUE,
+realName TEXT NOT NULL,
+username TEXT NOT NULL,
+message TEXT NOT NULL,
+messageType TEXT NOT NULL,
+createdAt TEXT NOT NULL,
+updatedAt TEXT NOT NULL,
+edited BOOLEAN NOT NULL DEFAULT 0,
+deleted BOOLEAN NOT NULL DEFAULT 0,
+conversationTable TEXT REFERENCES conversationTable(_id)
+);
+
+CREATE TABLE conversationTable (
+_id TEXT NOT NULL PRIMARY KEY UNIQUE,
+conversationType TEXT NOT NULL,
+collectionName TEXT,
+name TEXT,
+avatar TEXT,
+bio TEXT,
+peopleCount INTEGER
+);
+
+CREATE TABLE profileTable (
+username TEXT NOT NULL,
+realName TEXT NOT NULL,
+avatar TEXT NOT NULL,
+pokemonHero TEXT NOT NULL,
+bio TEXT NOT NULL,
+lastSeen TEXT NOT NULL,
+groups TEXT NOT NULL,
+pvs TEXT NOT NULL,
+);
+
+CREATE INDEX conversationIdIndex ON messageTable(conversationId);
